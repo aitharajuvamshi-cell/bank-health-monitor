@@ -1,0 +1,133 @@
+{
+ "pulled_at": "2026-11-20",
+ "raw_rows": 487729,
+ "quarters": 78,
+ "first_quarter": "20070331",
+ "last_quarter": "20260630",
+ "duplicate_bank_quarters_removed": 0,
+ "rows_dropped_nonpositive_assets": 0,
+ "rows_dropped_foreign_bank_branches_no_capital": 1324,
+ "rows_with_pre2012_thrift_form_gaps": 15495,
+ "missing_share_top10": {
+  "NAMEHCR": 0.2162,
+  "RBC1RWAJ": 0.0934,
+  "SCAA": 0.0319,
+  "LNRENROW": 0.0319,
+  "SCHF": 0.0319,
+  "NTLNLSQR": 0.0166,
+  "ROE": 0.0004,
+  "OFFDOM": 0.0,
+  "DEPINS": 0.0,
+  "DEPUNINS": 0.0
+ },
+ "amount_blanks_filled_with_zero": {
+  "LNRENROW": 15495,
+  "SCHF": 15495,
+  "SCAA": 15495
+ },
+ "capped_values": {
+  "ROA": {
+   "p01": -4.462,
+   "p99": 6.467,
+   "rows_capped": 9730
+  },
+  "ROAQ": {
+   "p01": -6.11,
+   "p99": 7.07,
+   "rows_capped": 9720
+  },
+  "NCLNLSR": {
+   "p01": 0.0,
+   "p99": 12.589,
+   "rows_capped": 4865
+  },
+  "NTLNLSR": {
+   "p01": -0.43,
+   "p99": 4.392,
+   "rows_capped": 9730
+  },
+  "EQV": {
+   "p01": 4.109,
+   "p99": 83.393,
+   "rows_capped": 9730
+  },
+  "RBC1AAJ": {
+   "p01": 5.057,
+   "p99": 84.386,
+   "rows_capped": 9730
+  },
+  "LNLSDEPR": {
+   "p01": 0.0,
+   "p99": 130.489,
+   "rows_capped": 4865
+  },
+  "brokered_share": {
+   "p01": 0.0,
+   "p99": 42.163,
+   "rows_capped": 4817
+  },
+  "uninsured_share": {
+   "p01": 0.399,
+   "p99": 68.052,
+   "rows_capped": 9634
+  },
+  "unreal_loss_to_t1": {
+   "p01": -17.554,
+   "p99": 52.682,
+   "rows_capped": 9416
+  },
+  "cre_to_t1": {
+   "p01": 0.0,
+   "p99": 617.438,
+   "rows_capped": 4708
+  },
+  "constr_to_t1": {
+   "p01": 0.0,
+   "p99": 324.044,
+   "rows_capped": 4863
+  },
+  "asset_growth_yoy": {
+   "p01": -18.134,
+   "p99": 82.236,
+   "rows_capped": 9010
+  },
+  "loan_growth_yoy": {
+   "p01": -23.558,
+   "p99": 98.608,
+   "rows_capped": 8862
+  },
+  "NIMY": {
+   "p01": 0.97,
+   "p99": 6.509,
+   "rows_capped": 9730
+  },
+  "EEFFR": {
+   "p01": 29.717,
+   "p99": 181.539,
+   "rows_capped": 9730
+  },
+  "LNATRESR": {
+   "p01": 0.0,
+   "p99": 5.298,
+   "rows_capped": 4869
+  },
+  "NPERFV": {
+   "p01": 0.0,
+   "p99": 12.16,
+   "rows_capped": 4865
+  }
+ },
+ "failures_raw": 4117,
+ "assistance_transactions_excluded": 593,
+ "failures_missing_cert": 485,
+ "failures_clean": 3036,
+ "failures_since_2007": 552,
+ "failed_banks_matched_to_call_reports": 551,
+ "failed_since_2007_not_matched": 1,
+ "banks_seen": 9132,
+ "banks_exited": 4836,
+ "banks_exited_by_failure": 551,
+ "banks_exited_other_mostly_mergers": 4285,
+ "clean_rows": 486405,
+ "clean_columns": 90
+}

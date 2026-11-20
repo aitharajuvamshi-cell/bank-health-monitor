@@ -1,0 +1,578 @@
+[
+ {
+  "column": "ASSET",
+  "dtype": "int64",
+  "fdic_title": "Total assets",
+  "missing_share": 0.0,
+  "min": 66.0,
+  "max": 4091315000.0
+ },
+ {
+  "column": "BKCLASS",
+  "dtype": "str",
+  "fdic_title": "INSTITUTION CLASS",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "BRO",
+  "dtype": "float64",
+  "fdic_title": "BROKERED DEP",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 151509000.0
+ },
+ {
+  "column": "CB",
+  "dtype": "bool",
+  "fdic_title": "Community Bank",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "CERT",
+  "dtype": "int64",
+  "fdic_title": "'FDIC Certificate #'",
+  "missing_share": 0.0,
+  "min": 9.0,
+  "max": 91385.0
+ },
+ {
+  "column": "CITY",
+  "dtype": "str",
+  "fdic_title": "CITY",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "COREDEP",
+  "dtype": "float64",
+  "fdic_title": "CORE DEPOSITS",
+  "missing_share": 0.0,
+  "min": -58457.0,
+  "max": 2084452000.0
+ },
+ {
+  "column": "DEP",
+  "dtype": "int64",
+  "fdic_title": "Total deposits",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 2820284000.0
+ },
+ {
+  "column": "DEPINS",
+  "dtype": "int64",
+  "fdic_title": "ESTIMATED INSURED DEPOSITS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 1245343000.0
+ },
+ {
+  "column": "DEPUNINS",
+  "dtype": "int64",
+  "fdic_title": "ESTIMATED UNINSURED DEPOSITS IN DOMESTIC OFFICES AND IN INSURED BRANCHES IN US TERRITORIES AND POSSESSIONS",
+  "missing_share": 0.0,
+  "min": -47656.0,
+  "max": 1392514000.0
+ },
+ {
+  "column": "EEFFR",
+  "dtype": "float64",
+  "fdic_title": "EFFICIENCY RATIO",
+  "missing_share": 0.0,
+  "min": -2280.0,
+  "max": 292800.0
+ },
+ {
+  "column": "EQ",
+  "dtype": "float64",
+  "fdic_title": "Equity capital",
+  "missing_share": 0.0,
+  "min": -4565197.0,
+  "max": 341580000.0
+ },
+ {
+  "column": "EQV",
+  "dtype": "float64",
+  "fdic_title": "BANK EQUITY CAPITAL/ASSETS",
+  "missing_share": 0.0,
+  "min": -214.9533,
+  "max": 100.0
+ },
+ {
+  "column": "LNATRESR",
+  "dtype": "float64",
+  "fdic_title": "LOAN LOSS RESERVE/GROSS LN&LS",
+  "missing_share": 0.0,
+  "min": -11.2477,
+  "max": 100.0
+ },
+ {
+  "column": "LNCRCD",
+  "dtype": "float64",
+  "fdic_title": "CONSUMER LOANS-CREDIT CARD PLAN",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 256015215.0
+ },
+ {
+  "column": "LNLSDEPR",
+  "dtype": "float64",
+  "fdic_title": "NET LOANS & LEASES/DEPOSITS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 6839538.8
+ },
+ {
+  "column": "LNLSGR",
+  "dtype": "int64",
+  "fdic_title": "LOANS AND LEASES-TOTAL",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 1561577000.0
+ },
+ {
+  "column": "LNLSNET",
+  "dtype": "int64",
+  "fdic_title": "LOANS AND LEASES-NET",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 1535635000.0
+ },
+ {
+  "column": "LNRECONS",
+  "dtype": "float64",
+  "fdic_title": "RE CONSTRUCTION & LAND DEVELOP",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 39864847.0
+ },
+ {
+  "column": "LNREMULT",
+  "dtype": "float64",
+  "fdic_title": "RE MULTIFAMILY",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 107317000.0
+ },
+ {
+  "column": "LNRENRES",
+  "dtype": "float64",
+  "fdic_title": "RE NONFARM NONRESIDENTIAL PROP",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 104535000.0
+ },
+ {
+  "column": "LNRENROW",
+  "dtype": "float64",
+  "fdic_title": "OWNER-OCC NONFARM NONRES RE LNS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 43866000.0
+ },
+ {
+  "column": "NAME",
+  "dtype": "str",
+  "fdic_title": "INSTITUTION NAME",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "NAMEHCR",
+  "dtype": "str",
+  "fdic_title": "Bank Holding Company (Regulatory Top Holder)",
+  "missing_share": 0.2162,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "NCLNLS",
+  "dtype": "int64",
+  "fdic_title": "TOTAL N/C-LOANS & LEASES",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 65914905.0
+ },
+ {
+  "column": "NCLNLSR",
+  "dtype": "float64",
+  "fdic_title": "N/C LNS & LS/GROSS LNS & LS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 100.0
+ },
+ {
+  "column": "NETINC",
+  "dtype": "float64",
+  "fdic_title": "Net income",
+  "missing_share": 0.0,
+  "min": -24593679.0,
+  "max": 52502000.0
+ },
+ {
+  "column": "NIMY",
+  "dtype": "float64",
+  "fdic_title": "NET INTEREST MARGIN",
+  "missing_share": 0.0,
+  "min": -4515.1515,
+  "max": 1125.0
+ },
+ {
+  "column": "NPERFV",
+  "dtype": "float64",
+  "fdic_title": "NONPERF ASSETS/TOTAL ASSETS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 51.076
+ },
+ {
+  "column": "NTCRCDQ",
+  "dtype": "float64",
+  "fdic_title": "CREDIT CARD LN NET-CHG-QTR",
+  "missing_share": 0.0,
+  "min": -84941.0,
+  "max": 4594817.0
+ },
+ {
+  "column": "NTCRCDR",
+  "dtype": "float64",
+  "fdic_title": "CREDIT CARD LOAN NET CHARGE-OFFS RATIO",
+  "missing_share": 0.0,
+  "min": -0.9009,
+  "max": 37.766
+ },
+ {
+  "column": "NTLNLSQR",
+  "dtype": "float64",
+  "fdic_title": "NET CHARGE-OFFS/LOANS & LEASES QUARTERLY",
+  "missing_share": 0.0166,
+  "min": -232.54,
+  "max": 762.09
+ },
+ {
+  "column": "NTLNLSR",
+  "dtype": "float64",
+  "fdic_title": "NET CHARGE-OFFS/LOANS & LEASES",
+  "missing_share": 0.0,
+  "min": -83.3524,
+  "max": 752.7094
+ },
+ {
+  "column": "OFFDOM",
+  "dtype": "float64",
+  "fdic_title": "Number of Domestic Offices",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 6729.0
+ },
+ {
+  "column": "P3CRCDR",
+  "dtype": "float64",
+  "fdic_title": "30-89 DAYS P/D-CREDIT CARD PLANS RATIO",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 8.2674
+ },
+ {
+  "column": "P9CRCDR",
+  "dtype": "float64",
+  "fdic_title": "90+ DAYS P/D-CREDIT CARD PLANS RATIO",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 7.4351
+ },
+ {
+  "column": "RBC1AAJ",
+  "dtype": "float64",
+  "fdic_title": "LEVERAGE RATIO-PCA",
+  "missing_share": 0.0,
+  "min": -23.8259,
+  "max": 1886.8167
+ },
+ {
+  "column": "RBC1RWAJ",
+  "dtype": "float64",
+  "fdic_title": "TIER 1 RBC RATIO-PCA",
+  "missing_share": 0.0934,
+  "min": -2300.0,
+  "max": 74283.33
+ },
+ {
+  "column": "RBCT1J",
+  "dtype": "float64",
+  "fdic_title": "TIER 1 RBC ADJUSTED LLR - PCA",
+  "missing_share": 0.0,
+  "min": -7789337.0,
+  "max": 302589000.0
+ },
+ {
+  "column": "REPDTE",
+  "dtype": "str",
+  "fdic_title": "Report Date",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "ROA",
+  "dtype": "float64",
+  "fdic_title": "Return on assets (ROA)",
+  "missing_share": 0.0,
+  "min": -761.9048,
+  "max": 562.2717
+ },
+ {
+  "column": "ROAQ",
+  "dtype": "float64",
+  "fdic_title": "Quarterly return on assets",
+  "missing_share": 0.0,
+  "min": -761.9,
+  "max": 679.49
+ },
+ {
+  "column": "ROE",
+  "dtype": "float64",
+  "fdic_title": "Return on Equity (ROE)",
+  "missing_share": 0.0004,
+  "min": -354657.8,
+  "max": 58436.63
+ },
+ {
+  "column": "SCAA",
+  "dtype": "float64",
+  "fdic_title": "TOTAL AVAILABLE-FOR-SALE AT AMORTIZED COST SECURITIES ON A CONSOLIDATED BASIS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 552176000.0
+ },
+ {
+  "column": "SCAF",
+  "dtype": "int64",
+  "fdic_title": "SECURITIES-AF",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 549034000.0
+ },
+ {
+  "column": "SCHA",
+  "dtype": "int64",
+  "fdic_title": "SECURITIES-HA",
+  "missing_share": 0.0,
+  "min": -1278900.0,
+  "max": 683054000.0
+ },
+ {
+  "column": "SCHF",
+  "dtype": "float64",
+  "fdic_title": "TOTAL HELD-TO-MATURITY AT FAIR VALUE SECURITIES ON A CONSOLIDATED BASIS",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 678146000.0
+ },
+ {
+  "column": "SPECGRP",
+  "dtype": "int64",
+  "fdic_title": "Asset Concentration Hierarchy",
+  "missing_share": 0.0,
+  "min": 1.0,
+  "max": 9.0
+ },
+ {
+  "column": "STALP",
+  "dtype": "str",
+  "fdic_title": "FIPS STATE ALPHA CODE",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "date",
+  "dtype": "datetime64[us]",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "quarter",
+  "dtype": "str",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "sec_detail_reported",
+  "dtype": "bool",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "cre_detail_reported",
+  "dtype": "bool",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "uninsured_reported",
+  "dtype": "bool",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "assets_bn",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": 0.0001,
+  "max": 4091.315
+ },
+ {
+  "column": "uninsured_share",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0098,
+  "min": -21.1863,
+  "max": 5210.5292
+ },
+ {
+  "column": "brokered_share",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0098,
+  "min": 0.0,
+  "max": 100.1414
+ },
+ {
+  "column": "core_dep_share",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0098,
+  "min": -18.0688,
+  "max": 100.0
+ },
+ {
+  "column": "unreal_loss",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0319,
+  "min": -19445000.0,
+  "max": 135430000.0
+ },
+ {
+  "column": "unreal_loss_to_t1",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0321,
+  "min": -3834.2701,
+  "max": 38837.5
+ },
+ {
+  "column": "cre_noo",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": 0.0,
+  "max": 165484000.0
+ },
+ {
+  "column": "cre_to_t1",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0321,
+  "min": 0.0,
+  "max": 1224187.5
+ },
+ {
+  "column": "constr_to_t1",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0003,
+  "min": 0.0,
+  "max": 753775.0
+ },
+ {
+  "column": "card_nco_q_ann",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.815,
+  "min": -33200.0,
+  "max": 14200.0
+ },
+ {
+  "column": "card_share_of_loans",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0168,
+  "min": 0.0,
+  "max": 100.0008
+ },
+ {
+  "column": "asset_growth_yoy",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0739,
+  "min": -99.9581,
+  "max": 181721.4371
+ },
+ {
+  "column": "loan_growth_yoy",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0891,
+  "min": -100.0,
+  "max": 2995566.6667
+ },
+ {
+  "column": "dep_growth_yoy",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0827,
+  "min": -100.0,
+  "max": 5425800.0
+ },
+ {
+  "column": "dep_growth_qoq",
+  "dtype": "float64",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0282,
+  "min": -100.0,
+  "max": Infinity
+ },
+ {
+  "column": "fail_date",
+  "dtype": "datetime64[us]",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.9804,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "fails_within_1y",
+  "dtype": "bool",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ },
+ {
+  "column": "failed_ever",
+  "dtype": "bool",
+  "fdic_title": "derived in 02_clean.py",
+  "missing_share": 0.0,
+  "min": null,
+  "max": null
+ }
+]

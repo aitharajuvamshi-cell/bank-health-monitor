@@ -1,0 +1,5 @@
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+python-docx>=1.1        # only for docs/make_walkthrough_docx.py
+# anthropic>=0.40       # optional: only for `python src/06_claude_memo.py --send`

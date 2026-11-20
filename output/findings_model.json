@@ -1,0 +1,1242 @@
+{
+ "split": {
+  "train_period": "2007Q1 to 2011Q4",
+  "test_period": "2012Q1 to 2025Q2",
+  "train_rows": 163108,
+  "test_rows": 305836,
+  "train_positive_rows": 1799,
+  "test_positive_rows": 383,
+  "test_failed_banks": 117,
+  "base_rate_test_pct": 0.125,
+  "label_cutoff": "2025-07-17"
+ },
+ "model_results": [
+  {
+   "screen": "A. Red-flag rule (6 checks)",
+   "auc": 0.943,
+   "capture_top1": 77.0,
+   "precision_top1": 9.6,
+   "capture_top2": 83.0,
+   "precision_top2": 5.2,
+   "capture_top5": 87.7,
+   "precision_top5": 2.2
+  },
+  {
+   "screen": "B. Logistic regression",
+   "auc": 0.953,
+   "capture_top1": 82.2,
+   "precision_top1": 10.3,
+   "capture_top2": 86.9,
+   "precision_top2": 5.4,
+   "capture_top5": 90.1,
+   "precision_top5": 2.3
+  },
+  {
+   "screen": "C. Gradient boosting",
+   "auc": 0.968,
+   "capture_top1": 84.3,
+   "precision_top1": 10.6,
+   "capture_top2": 87.5,
+   "precision_top2": 5.5,
+   "capture_top5": 90.1,
+   "precision_top5": 2.3
+  }
+ ],
+ "no_capital_variant": {
+  "auc": 0.918,
+  "capture_top2": 83.6,
+  "precision_top2": 5.2
+ },
+ "bank_level": {
+  "failed_banks_test": 117,
+  "flagged_before_failure": 105,
+  "flagged_before_failure_pct": 89.7,
+  "median_days_warning": 293,
+  "healthy_banks_test": 7350,
+  "healthy_banks_ever_flagged_pct": 11.2,
+  "flags_per_quarter": 110
+ },
+ "logit_weights": [
+  {
+   "feature": "Tier 1 leverage ratio %",
+   "weight": -2.785
+  },
+  {
+   "feature": "Equity % of assets",
+   "weight": -1.722
+  },
+  {
+   "feature": "Return on assets %",
+   "weight": -0.645
+  },
+  {
+   "feature": "Noncurrent loans % of loans",
+   "weight": 0.457
+  },
+  {
+   "feature": "Brokered deposits % of deposits",
+   "weight": 0.42
+  },
+  {
+   "feature": "Construction loans % of Tier 1",
+   "weight": 0.398
+  },
+  {
+   "feature": "Non-owner CRE % of Tier 1",
+   "weight": 0.257
+  },
+  {
+   "feature": "Size (log assets)",
+   "weight": -0.181
+  },
+  {
+   "feature": "Loans % of deposits",
+   "weight": 0.174
+  },
+  {
+   "feature": "Nonperforming assets % of assets",
+   "weight": 0.162
+  },
+  {
+   "feature": "Loan growth YoY %",
+   "weight": 0.153
+  },
+  {
+   "feature": "Net interest margin %",
+   "weight": 0.129
+  },
+  {
+   "feature": "Loan loss reserve % of loans",
+   "weight": 0.092
+  },
+  {
+   "feature": "Efficiency ratio %",
+   "weight": -0.048
+  }
+ ],
+ "flag_lift": [
+  {
+   "flag": "Noncurrent loans > 3%",
+   "share_of_bank_quarters": 10.0,
+   "fail_rate_if_on": 1.05,
+   "fail_rate_if_off": 0.023
+  },
+  {
+   "flag": "Losing money (ROA < 0)",
+   "share_of_bank_quarters": 5.8,
+   "fail_rate_if_on": 1.78,
+   "fail_rate_if_off": 0.023
+  },
+  {
+   "flag": "Tier 1 leverage < 8%",
+   "share_of_bank_quarters": 6.7,
+   "fail_rate_if_on": 1.67,
+   "fail_rate_if_off": 0.013
+  },
+  {
+   "flag": "Brokered deposits > 10%",
+   "share_of_bank_quarters": 9.2,
+   "fail_rate_if_on": 0.12,
+   "fail_rate_if_off": 0.126
+  },
+  {
+   "flag": "Construction > 100% of capital",
+   "share_of_bank_quarters": 7.2,
+   "fail_rate_if_on": 0.96,
+   "fail_rate_if_off": 0.061
+  },
+  {
+   "flag": "Non-owner CRE > 300% of capital",
+   "share_of_bank_quarters": 10.0,
+   "fail_rate_if_on": 0.94,
+   "fail_rate_if_off": 0.034
+  }
+ ],
+ "fail_rate_by_flag_count": [
+  {
+   "flags": 0,
+   "fail_rate_pct": 0.01,
+   "bank_quarters": 198095
+  },
+  {
+   "flags": 1,
+   "fail_rate_pct": 0.02,
+   "bank_quarters": 77668
+  },
+  {
+   "flags": 2,
+   "fail_rate_pct": 0.08,
+   "bank_quarters": 21849
+  },
+  {
+   "flags": 3,
+   "fail_rate_pct": 0.81,
+   "bank_quarters": 5678
+  },
+  {
+   "flags": 4,
+   "fail_rate_pct": 11.0,
+   "bank_quarters": 2546
+  }
+ ],
+ "q7_uninsured_only": {
+  "threshold_pct": 67.5,
+  "n_banks": 10,
+  "n_failed": 3,
+  "survivors": [
+   "Deutsche Bank Trust Co. Americas",
+   "Columbia Bank",
+   "UMB Bank National Association",
+   "CIBC Bank USA",
+   "HSBC Bank USA National Association",
+   "State Street Bank & Trust Co.",
+   "BNY Mellon National Association"
+  ]
+ },
+ "q7": {
+  "n_banks_10bn": 158,
+  "cases": [
+   {
+    "name": "Silicon Valley Bank",
+    "assets_bn": 209.0,
+    "red_flags": 1,
+    "credit_score_pct": 23.0,
+    "ROA": 0.96,
+    "noncurrent": 0.19,
+    "uninsured_share": 86.4,
+    "unreal_loss_to_t1": 104.1,
+    "uninsured_pct": 99.0,
+    "unreal_pct": 100.0,
+    "liq_flag": true
+   },
+   {
+    "name": "Signature Bank",
+    "assets_bn": 110.4,
+    "red_flags": 1,
+    "credit_score_pct": 70.0,
+    "ROA": 1.15,
+    "noncurrent": 0.32,
+    "uninsured_share": 89.7,
+    "unreal_loss_to_t1": 32.0,
+    "uninsured_pct": 99.0,
+    "unreal_pct": 66.0,
+    "liq_flag": false
+   },
+   {
+    "name": "First Republic Bank",
+    "assets_bn": 212.6,
+    "red_flags": 0,
+    "credit_score_pct": 59.0,
+    "ROA": 0.85,
+    "noncurrent": 0.07,
+    "uninsured_share": 67.7,
+    "unreal_loss_to_t1": 29.9,
+    "uninsured_pct": 95.0,
+    "unreal_pct": 62.0,
+    "liq_flag": false
+   },
+   {
+    "name": "Western Alliance (Phoenix)",
+    "assets_bn": 67.7,
+    "red_flags": 0,
+    "credit_score_pct": 87.0,
+    "ROA": 1.64,
+    "noncurrent": 1.37,
+    "uninsured_share": 55.0,
+    "unreal_loss_to_t1": 18.4,
+    "uninsured_pct": 82.0,
+    "unreal_pct": 35.0,
+    "liq_flag": false
+   }
+  ],
+  "median_uninsured_10bn": 41.9,
+  "median_unreal_10bn": 23.7,
+  "liq_flagged_count": 11,
+  "liq_flagged_failed": 1,
+  "scatter": [
+   {
+    "x": 68.4,
+    "y": 44.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 40.4,
+    "y": 5.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 34.8,
+    "y": 30.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 47.2,
+    "y": 9.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 97.1,
+    "y": 0.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 44.2,
+    "y": 17.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 62.3,
+    "y": 60.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 32.8,
+    "y": 32.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 48.5,
+    "y": 29.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 29.3,
+    "y": 31.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 62.0,
+    "y": 38.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 34.5,
+    "y": 40.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 53.1,
+    "y": 40.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 58.2,
+    "y": 52.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 44.8,
+    "y": 40.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 49.8,
+    "y": 21.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.8,
+    "y": 49.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 53.5,
+    "y": 16.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 40.4,
+    "y": 62.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.8,
+    "y": 35.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.8,
+    "y": 45.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 33.8,
+    "y": 37.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 39.3,
+    "y": 48.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 25.1,
+    "y": 7.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 56.5,
+    "y": 24.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.3,
+    "y": 9.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 31.6,
+    "y": 21.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 45.6,
+    "y": 41.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 43.3,
+    "y": 12.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 46.7,
+    "y": 18.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 40.2,
+    "y": 22.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 55.2,
+    "y": 25.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 36.8,
+    "y": 16.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 54.5,
+    "y": 48.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 7.1,
+    "y": 1.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 43.5,
+    "y": 21.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 51.0,
+    "y": 40.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 55.9,
+    "y": 33.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.8,
+    "y": 26.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 52.1,
+    "y": 31.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 52.3,
+    "y": 15.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.9,
+    "y": 50.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 45.4,
+    "y": 19.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 36.9,
+    "y": 28.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 35.6,
+    "y": 20.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 45.5,
+    "y": 20.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 67.5,
+    "y": 0.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 25.8,
+    "y": 1.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 75.1,
+    "y": 42.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 52.2,
+    "y": 18.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 26.1,
+    "y": 52.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 49.6,
+    "y": 12.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 33.7,
+    "y": 17.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 43.4,
+    "y": 49.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 32.2,
+    "y": 24.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 51.9,
+    "y": 23.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 47.4,
+    "y": 38.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 49.8,
+    "y": 21.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 37.1,
+    "y": 25.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 44.1,
+    "y": 19.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.4,
+    "y": 30.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 34.5,
+    "y": 30.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 44.6,
+    "y": 41.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 38.1,
+    "y": 51.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 22.9,
+    "y": 24.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 34.0,
+    "y": 34.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 58.3,
+    "y": 27.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 43.4,
+    "y": 46.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 40.0,
+    "y": 34.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 37.0,
+    "y": 17.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 66.0,
+    "y": 45.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 36.1,
+    "y": 15.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 51.9,
+    "y": 41.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.9,
+    "y": 40.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 51.0,
+    "y": 47.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 45.9,
+    "y": 66.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.5,
+    "y": 25.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 33.2,
+    "y": 24.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 49.7,
+    "y": 6.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 32.6,
+    "y": 60.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 21.2,
+    "y": 1.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.5,
+    "y": 25.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 54.0,
+    "y": 23.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 61.0,
+    "y": 45.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 47.4,
+    "y": 3.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 65.3,
+    "y": 59.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 53.3,
+    "y": 0.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.9,
+    "y": 15.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 36.8,
+    "y": 27.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.2,
+    "y": 28.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 86.4,
+    "y": 104.1,
+    "failed": true,
+    "label": "Silicon Valley Bank"
+   },
+   {
+    "x": 38.5,
+    "y": 51.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 2.6,
+    "y": 0.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.0,
+    "y": 16.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 53.9,
+    "y": 20.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 11.1,
+    "y": 1.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 58.9,
+    "y": 14.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 9.3,
+    "y": 14.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 20.7,
+    "y": 0.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 27.2,
+    "y": 7.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 35.0,
+    "y": 9.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 24.4,
+    "y": 23.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 57.7,
+    "y": 14.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 35.4,
+    "y": 38.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 81.5,
+    "y": 23.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 40.2,
+    "y": 19.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 36.7,
+    "y": 19.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 3.9,
+    "y": 2.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 45.4,
+    "y": 36.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 35.0,
+    "y": 45.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 55.2,
+    "y": 22.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 33.2,
+    "y": 23.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 7.3,
+    "y": 73.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 27.5,
+    "y": 24.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 33.3,
+    "y": 11.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 47.3,
+    "y": 45.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 30.5,
+    "y": 33.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 56.1,
+    "y": 4.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 73.2,
+    "y": 9.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 3.2,
+    "y": 65.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 39.9,
+    "y": 32.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 43.0,
+    "y": 53.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 6.2,
+    "y": 32.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 1.2,
+    "y": 8.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 29.8,
+    "y": 43.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 53.7,
+    "y": 14.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 34.9,
+    "y": 13.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 39.2,
+    "y": 23.6,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 50.9,
+    "y": 24.3,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 17.3,
+    "y": 9.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 40.2,
+    "y": 5.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 52.8,
+    "y": 41.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 51.7,
+    "y": 14.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 5.6,
+    "y": 3.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 12.4,
+    "y": 0.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 44.5,
+    "y": 16.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 89.7,
+    "y": 32.0,
+    "failed": true,
+    "label": "Signature Bank"
+   },
+   {
+    "x": 5.8,
+    "y": 0.5,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 7.9,
+    "y": 13.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 1.0,
+    "y": 52.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 20.6,
+    "y": 88.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 55.0,
+    "y": 18.4,
+    "failed": false,
+    "label": "Western Alliance (Phoenix)"
+   },
+   {
+    "x": 26.4,
+    "y": 4.2,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 7.8,
+    "y": 0.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 57.8,
+    "y": 9.8,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 12.4,
+    "y": 29.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 9.7,
+    "y": 21.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 69.8,
+    "y": 19.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 49.0,
+    "y": 15.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 66.2,
+    "y": 11.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 5.1,
+    "y": 7.0,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 0.0,
+    "y": 79.1,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 41.2,
+    "y": 19.7,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 63.5,
+    "y": 19.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 33.9,
+    "y": 10.9,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 65.3,
+    "y": 21.4,
+    "failed": false,
+    "label": ""
+   },
+   {
+    "x": 67.7,
+    "y": 29.9,
+    "failed": true,
+    "label": "First Republic Bank"
+   },
+   {
+    "x": 5.7,
+    "y": 64.7,
+    "failed": false,
+    "label": ""
+   }
+  ]
+ },
+ "q8": {
+  "quarter": "2026Q2",
+  "banks_scored": 4296,
+  "flagged": 86,
+  "flagged_assets_bn": 117.0,
+  "flagged_share_of_system_assets_pct": 0.44,
+  "flagged_median_assets_m": 374.0,
+  "flagged_largest_bn": 42.8,
+  "flagged_by_state": {
+   "OK": 10,
+   "IL": 9,
+   "MO": 6,
+   "WA": 5,
+   "GA": 4,
+   "KS": 4,
+   "TN": 4,
+   "TX": 4
+  },
+  "flagged_flag_counts": {
+   "Brokered deposits > 10%": 54,
+   "Noncurrent loans > 3%": 39,
+   "Losing money (ROA < 0)": 38,
+   "Non-owner CRE > 300% of capital": 37,
+   "Construction > 100% of capital": 30,
+   "Tier 1 leverage < 8%": 29
+  },
+  "flagged_with_neg_roa_pct": 44.0,
+  "system_median_noncurrent": 0.45,
+  "liq_cut_uninsured": 52.1,
+  "liq_cut_unreal": 40.5,
+  "liq_flag_10bn_now": 0,
+  "n_banks_10bn_now": 159,
+  "median_unreal_10bn_now": 8.7,
+  "median_uninsured_10bn_now": 39.4
+ }
+}

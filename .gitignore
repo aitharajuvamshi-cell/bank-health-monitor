@@ -1,0 +1,11 @@
+# Raw and processed FDIC data are re-downloadable (about 200 MB), so they stay out of git.
+data/raw/
+data/processed/
+# Named watchlists. Never publish these.
+output/local_only/
+output/quarterly_memo.md
+__pycache__/
+*.pyc
+.venv/
+STATUS.md
+output/dashboard_body.html

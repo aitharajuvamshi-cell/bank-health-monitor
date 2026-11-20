@@ -1,0 +1,778 @@
+<title>US Bank Health Monitor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Interactive analysis of every FDIC-insured US bank, 2007 to 2026, built from public Call Report data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: a supervisor's binder. Sticky tab strip of sections, each section a stack of
+   evidence panels; every panel cites the FDIC field codes it was computed from. */
+:root {
+  --bg: #f4f6f8; --surface: #fcfcfd; --raise: #ffffff;
+  --ink: #0b0d12; --ink2: #4b515b; --muted: #80868f;
+  --grid: #e3e6ea; --axis: #c3c7cd; --ring: rgba(11,13,18,.10);
+  --accent: #1c5cab; --accent-wash: #e6eefa;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  --good: #0ca30c; --warn: #fab219; --serious: #ec835a; --crit: #d03b3b;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c0e12; --surface: #15181d; --raise: #1b1f25;
+  --ink: #eef0f3; --ink2: #c0c4cc; --muted: #8a9099;
+  --grid: #272b31; --axis: #3a3f46; --ring: rgba(255,255,255,.10);
+  --accent: #6da7ec; --accent-wash: #1a2a40;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c0e12; --surface: #15181d; --raise: #1b1f25;
+  --ink: #eef0f3; --ink2: #c0c4cc; --muted: #8a9099;
+  --grid: #272b31; --axis: #3a3f46; --ring: rgba(255,255,255,.10);
+  --accent: #6da7ec; --accent-wash: #1a2a40;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { padding-block: 28px 18px; }
+.eyebrow { font: 500 12px/1.2 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 600 clamp(28px, 4vw, 40px)/1.1 var(--f-display); margin: 8px 0 10px; text-wrap: balance; letter-spacing: -.01em; }
+h2 { font: 600 22px/1.25 var(--f-display); margin: 0 0 6px; text-wrap: balance; }
+h3 { font: 600 16px/1.3 var(--f-display); margin: 0 0 4px; }
+.lede { color: var(--ink2); max-width: 70ch; margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font: 13px var(--f-mono); color: var(--muted); }
+.meta b { color: var(--ink2); font-weight: 500; }
+
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--grid); }
+nav.tabs .wrap { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs button { font: 500 14px var(--f-body); color: var(--ink2); background: none; border: 0; padding: 12px 12px 10px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+nav.tabs button:hover { color: var(--ink); }
+nav.tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+main { padding-block: 22px 60px; }
+section.tab { display: grid; gap: 18px; }
+.intro { display: grid; gap: 6px; max-width: 78ch; }
+.intro p { margin: 0; color: var(--ink2); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 18px; min-width: 0; display: grid; gap: 10px; align-content: start; }
+.panel p { margin: 0; color: var(--ink2); }
+.q { font: 500 12px var(--f-mono); color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+.src { font: 12px/1.4 var(--f-mono); color: var(--muted); }
+.src code { color: var(--ink2); }
+.answer { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; color: var(--ink) !important; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; }
+.kpi { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 16px; display: grid; gap: 4px; align-content: start; }
+.kpi .lbl { font-size: 13px; color: var(--ink2); }
+.kpi .val { font: 600 32px/1.1 var(--f-display); letter-spacing: -.01em; }
+.kpi .sub { font-size: 13px; color: var(--muted); }
+
+.findings { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.findings li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+.findings li .qn { font: 500 12px/22px var(--f-mono); color: var(--accent); }
+.findings a { color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+.chart { position: relative; width: 100%; min-width: 0; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart svg text { font: 11px var(--f-mono); fill: var(--muted); }
+.chart svg .dl { font: 500 11px var(--f-body); fill: var(--ink2); }
+.tip { position: absolute; pointer-events: none; background: var(--raise); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.12); min-width: 140px; z-index: 3; }
+.tip .t { font: 500 11px var(--f-mono); color: var(--muted); margin-bottom: 4px; }
+.tip .r { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.tip .r i { width: 12px; height: 2px; border-radius: 1px; display: inline-block; flex: none; }
+.tip .r b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tip .r span { color: var(--ink2); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
+.legend i.box { height: 10px; width: 10px; border-radius: 2px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 12px var(--f-body); border: 1px solid var(--ring); background: var(--raise); color: var(--ink2); padding: 4px 10px 4px 8px; border-radius: 999px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid currentColor; display: inline-block; }
+.chip[aria-pressed="true"] { color: var(--ink); background: var(--accent-wash); border-color: var(--accent); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+label.ctl { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--ink2); }
+select, input[type="search"] { font: 14px var(--f-body); color: var(--ink); background: var(--raise); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 8px; max-width: 100%; }
+
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; }
+tr.hl td { background: var(--accent-wash); }
+td.pos { color: var(--ink); font-weight: 600; }
+details summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+details[open] summary { margin-bottom: 8px; }
+
+.pill { display: inline-flex; align-items: center; gap: 5px; font: 500 12px var(--f-body); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--ring); }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--muted)); }
+.note { font-size: 13px; color: var(--ink2); background: var(--accent-wash); border-radius: 8px; padding: 10px 12px; }
+.small-multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px; }
+.sm { display: grid; gap: 2px; min-width: 0; }
+.sm h4 { margin: 0; font: 500 13px var(--f-body); color: var(--ink2); }
+ul.plain { margin: 0; padding-left: 18px; color: var(--ink2); display: grid; gap: 6px; }
+footer { color: var(--muted); font-size: 12px; padding-block: 0 40px; }
+@media (prefers-reduced-motion: no-preference) { .chart path.ln { transition: opacity .15s; } }
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="eyebrow">FDIC Call Report analysis</div>
+  <h1>US Bank Health Monitor</h1>
+  <p class="lede" id="lede"></p>
+  <div class="meta" id="meta"></div>
+</div></header>
+
+<nav class="tabs" aria-label="Sections"><div class="wrap" role="tablist" id="tablist"></div></nav>
+
+<main class="wrap">
+  <section class="tab" data-tab="overview" id="t-overview"></section>
+  <section class="tab" data-tab="industry" id="t-industry" hidden></section>
+  <section class="tab" data-tab="cards" id="t-cards" hidden></section>
+  <section class="tab" data-tab="big-banks" id="t-big-banks" hidden></section>
+  <section class="tab" data-tab="early-warning" id="t-early-warning" hidden></section>
+  <section class="tab" data-tab="runs-2023" id="t-runs-2023" hidden></section>
+  <section class="tab" data-tab="explorer" id="t-explorer" hidden></section>
+  <section class="tab" data-tab="method" id="t-method" hidden></section>
+</main>
+<footer class="wrap" id="foot"></footer>
+
+<script>
+const D = /*__DATA__*/null;
+const A = D.a, M = D.m, DQ = D.dq, EX = D.ex;
+
+/* ---------------------------------------------------------------- helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, attrs = {}, kids = []) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "text") e.textContent = v; else if (k === "html") e.innerHTML = v; else e.setAttribute(k, v);
+  }
+  for (const k of [].concat(kids)) if (k != null) e.append(k);
+  return e;
+};
+const NS = "http://www.w3.org/2000/svg";
+const sv = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const nf = (v, d = 0) => v == null || Number.isNaN(v) ? "n/a" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (v, d = 1) => v == null ? "n/a" : nf(v, d) + "%";
+const bn = (v, d = 0) => v == null ? "n/a" : "$" + nf(v, d) + "bn";
+const ordn = v => { v = Math.round(v); const t = v % 100 >= 10 && v % 100 <= 20 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[v % 10] || "th"); return v + t; };
+const signed = (v, d = 1) => v == null ? "n/a" : (v > 0 ? "+" : "") + nf(v, d) + "%";
+
+function niceTicks(lo, hi, n = 5) {
+  if (lo === hi) { hi = lo + 1; }
+  const span = hi - lo, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(s => s * mag).find(s => span / s <= n) || 10 * mag;
+  const t0 = Math.floor(lo / step) * step, t1 = Math.ceil(hi / step) * step, out = [];
+  for (let t = t0; t <= t1 + step / 2; t += step) out.push(+t.toFixed(10));
+  return out;
+}
+const renderers = [];
+function register(fn) { renderers.push(fn); fn(); }
+let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => renderers.forEach(f => f()), 120); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => renderers.forEach(f => f()));
+new MutationObserver(() => renderers.forEach(f => f())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+function tipBox(host) {
+  let t = host.querySelector(":scope > .tip");
+  if (!t) { t = el("div", { class: "tip", hidden: "" }); host.append(t); }
+  return t;
+}
+function fillTip(t, title, rows) {
+  t.replaceChildren(el("div", { class: "t", text: title }));
+  for (const r of rows) {
+    const key = el("i"); key.style.background = r.color || css("--muted");
+    t.append(el("div", { class: "r" }, [key, el("b", { text: r.value }), el("span", { text: r.name })]));
+  }
+}
+function placeTip(t, host, x, y) {
+  t.hidden = false;
+  const w = t.offsetWidth, hw = host.clientWidth;
+  let left = x + 14; if (left + w > hw) left = Math.max(0, x - w - 14);
+  t.style.left = left + "px"; t.style.top = Math.max(0, y - 10) + "px";
+}
+
+/* ---------------------------------------------------------------- line chart
+   One y-axis only. Nulls break the line. Crosshair snaps to nearest x. */
+function lineChart(host, o) {
+  const H = o.height || 260;
+  const draw = () => {
+    host.querySelectorAll("svg, .legend").forEach(n => n.remove());
+    const W = Math.max(280, host.clientWidth);
+    const direct = o.series.length <= 4 && W > 520 && !o.noDirect;
+    const m = { l: 48, r: direct ? 118 : 14, t: 12, b: 26 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b, n = o.x.length;
+    const all = o.series.flatMap(s => s.values).filter(v => v != null);
+    (o.refLines || []).forEach(r => all.push(r.y));
+    let lo = Math.min(...all), hi = Math.max(...all);
+    if (o.zero !== false && lo > 0) lo = 0;
+    const ticks = niceTicks(lo, hi, o.ticks || 5); lo = ticks[0]; hi = ticks[ticks.length - 1];
+    const X = i => m.l + (n === 1 ? iw / 2 : i * iw / (n - 1));
+    const Y = v => m.t + ih - (v - lo) / (hi - lo) * ih;
+    const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": o.label || "" });
+    (o.bands || []).forEach(b => {
+      const i0 = o.x.indexOf(b.from), i1 = o.x.indexOf(b.to);
+      if (i0 < 0 || i1 < 0) return;
+      svg.append(sv("rect", { x: X(i0), y: m.t, width: X(i1) - X(i0), height: ih, fill: css("--accent-wash") }));
+      const t = sv("text", { x: X(i0) + 6, y: m.t + 14 }); t.textContent = b.label; svg.append(t);
+    });
+    ticks.forEach(t => {
+      svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(t), y2: Y(t), stroke: t === 0 ? css("--axis") : css("--grid"), "stroke-width": 1 }));
+      const tx = sv("text", { x: m.l - 8, y: Y(t) + 4, "text-anchor": "end" }); tx.textContent = (o.tickFmt || o.fmt)(t); svg.append(tx);
+    });
+    const every = Math.max(1, Math.ceil(n / (iw / 62)));
+    o.x.forEach((lab, i) => {
+      const yr = lab.slice(0, 4), isQ1 = !lab.includes("Q") || lab.endsWith("Q1");
+      const step = Math.max(1, Math.round(every / 4));
+      if (isQ1 && (+yr) % step === 0) {
+        const tx = sv("text", { x: X(i), y: H - 6, "text-anchor": "middle" }); tx.textContent = lab.includes("Q") ? yr : lab; svg.append(tx);
+      }
+    });
+    (o.refLines || []).forEach(r => {
+      svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(r.y), y2: Y(r.y), stroke: css("--muted"), "stroke-dasharray": "4 4" }));
+      const tx = sv("text", { x: m.l + 4, y: Y(r.y) - 5 }); tx.textContent = r.label; svg.append(tx);
+    });
+    const ends = [];
+    o.series.forEach(s => {
+      let d = "", pen = false;
+      s.values.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1); pen = true; });
+      svg.append(sv("path", { d, fill: "none", stroke: css(s.color), "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", class: "ln" }));
+      let li = s.values.length - 1; while (li >= 0 && s.values[li] == null) li--;
+      if (li >= 0) {
+        svg.append(sv("circle", { cx: X(li), cy: Y(s.values[li]), r: 3.5, fill: css(s.color), stroke: css("--surface"), "stroke-width": 2 }));
+        ends.push({ y: Y(s.values[li]), x: X(li), s, v: s.values[li] });
+      }
+    });
+    if (direct) {
+      ends.sort((a, b) => a.y - b.y);
+      for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+      ends.forEach(e => { const tx = sv("text", { x: m.l + iw + 8, y: e.y + 4, class: "dl" }); tx.textContent = e.s.name; svg.append(tx); });
+    }
+    const cross = sv("line", { y1: m.t, y2: m.t + ih, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" });
+    svg.append(cross);
+    const dots = o.series.map(s => { const c = sv("circle", { r: 4, fill: css(s.color), stroke: css("--surface"), "stroke-width": 2, visibility: "hidden" }); svg.append(c); return c; });
+    const hit = sv("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent", tabindex: 0 });
+    svg.append(hit);
+    const tip = tipBox(host);
+    let cur = n - 1;
+    const show = (i, px, py) => {
+      cur = Math.max(0, Math.min(n - 1, i));
+      cross.setAttribute("x1", X(cur)); cross.setAttribute("x2", X(cur)); cross.setAttribute("visibility", "visible");
+      const rows = [];
+      o.series.forEach((s, k) => {
+        const v = s.values[cur];
+        if (v == null) { dots[k].setAttribute("visibility", "hidden"); return; }
+        dots[k].setAttribute("cx", X(cur)); dots[k].setAttribute("cy", Y(v)); dots[k].setAttribute("visibility", "visible");
+        rows.push({ value: o.fmt(v), name: s.name, color: css(s.color), v });
+      });
+      rows.sort((a, b) => b.v - a.v);
+      fillTip(tip, o.x[cur], rows);
+      const r = svg.getBoundingClientRect(), sc = r.width / W;
+      placeTip(tip, host, px != null ? px : X(cur) * sc, py != null ? py : m.t * sc);
+    };
+    const hide = () => { cross.setAttribute("visibility", "hidden"); dots.forEach(d => d.setAttribute("visibility", "hidden")); tip.hidden = true; };
+    hit.addEventListener("pointermove", e => {
+      const r = svg.getBoundingClientRect(), sc = r.width / W;
+      const x = (e.clientX - r.left) / sc;
+      show(Math.round((x - m.l) / (iw / Math.max(1, n - 1))), e.clientX - r.left, e.clientY - r.top);
+    });
+    hit.addEventListener("pointerleave", hide);
+    hit.addEventListener("blur", hide);
+    hit.addEventListener("focus", () => show(cur));
+    hit.addEventListener("keydown", e => { if (e.key === "ArrowLeft") { show(cur - 1); e.preventDefault(); } if (e.key === "ArrowRight") { show(cur + 1); e.preventDefault(); } });
+    if (o.series.length >= 2) {
+      const lg = el("div", { class: "legend" });
+      o.series.forEach(s => { const i = el("i"); i.style.background = css(s.color); lg.append(el("span", {}, [i, document.createTextNode(s.name)])); });
+      host.prepend(lg);
+    }
+    host.prepend(svg); if (o.series.length >= 2) host.prepend(host.querySelector(".legend"));
+  };
+  register(draw);
+  if (o.table !== false) host.after(tableDetails(o.x, o.series.map(s => ({ name: s.name, values: s.values })), o.fmt));
+}
+
+function tableDetails(x, cols, fmt) {
+  const d = el("details"); d.append(el("summary", { text: "Show the numbers as a table" }));
+  const t = el("table"), hr = el("tr");
+  hr.append(el("th", { text: "Period" })); cols.forEach(c => hr.append(el("th", { text: c.name })));
+  t.append(el("thead", {}, hr));
+  const tb = el("tbody");
+  for (let i = x.length - 1; i >= 0; i--) {
+    const tr = el("tr"); tr.append(el("td", { text: x[i] }));
+    cols.forEach(c => tr.append(el("td", { text: c.values[i] == null ? "" : fmt(c.values[i]) })));
+    tb.append(tr);
+  }
+  t.append(tb); d.append(el("div", { class: "tbl" }, t));
+  return d;
+}
+
+/* ---------------------------------------------------------------- vertical bars */
+function barChart(host, o) {
+  const H = o.height || 220;
+  const draw = () => {
+    host.querySelectorAll("svg").forEach(n => n.remove());
+    const W = Math.max(260, host.clientWidth), m = { l: 44, r: 10, t: 12, b: 26 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b, n = o.x.length;
+    const hi0 = Math.max(...o.values.filter(v => v != null), 0);
+    const ticks = niceTicks(0, hi0 || 1, 4), hi = ticks[ticks.length - 1];
+    const bw = iw / n, gap = Math.min(6, Math.max(2, bw * .25));
+    const Y = v => m.t + ih - v / hi * ih;
+    const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": o.label || "" });
+    ticks.forEach(t => {
+      svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(t), y2: Y(t), stroke: t === 0 ? css("--axis") : css("--grid") }));
+      const tx = sv("text", { x: m.l - 8, y: Y(t) + 4, "text-anchor": "end" }); tx.textContent = (o.tickFmt || o.fmt)(t); svg.append(tx);
+    });
+    const tip = tipBox(host);
+    const every = Math.ceil(n / (iw / 40));
+    o.x.forEach((lab, i) => {
+      const v = o.values[i] || 0, x = m.l + i * bw + gap / 2, w = Math.max(1, bw - gap), y = Y(v), base = Y(0);
+      const rr = Math.min(4, w / 2, base - y);
+      const color = css(o.colorFor ? o.colorFor(lab, i) : (o.color || "--s1"));
+      if (v > 0) svg.append(sv("path", { d: `M${x},${base}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${base}Z`, fill: color }));
+      if (i % every === 0 || i === n - 1) { const tx = sv("text", { x: x + w / 2, y: H - 6, "text-anchor": "middle" }); tx.textContent = o.xFmt ? o.xFmt(lab) : lab; svg.append(tx); }
+      const hit = sv("rect", { x: m.l + i * bw, y: m.t, width: bw, height: ih, fill: "transparent", tabindex: 0 });
+      const on = (px, py) => { fillTip(tip, String(lab), [{ value: o.fmt(o.values[i]), name: o.name || "", color }].concat(o.extra ? o.extra(i) : [])); placeTip(tip, host, px, py); };
+      hit.addEventListener("pointermove", e => { const r = svg.getBoundingClientRect(); on(e.clientX - r.left, e.clientY - r.top); });
+      hit.addEventListener("focus", () => { const r = svg.getBoundingClientRect(); on((x + w) * r.width / W, y * r.width / W); });
+      hit.addEventListener("pointerleave", () => tip.hidden = true); hit.addEventListener("blur", () => tip.hidden = true);
+      svg.append(hit);
+    });
+    host.prepend(svg);
+  };
+  register(draw);
+  if (o.table !== false) host.after(tableDetails(o.x.map(String), [{ name: o.name || "Value", values: o.values }], o.fmt));
+}
+
+/* ---------------------------------------------------------------- horizontal bars */
+function hbar(host, o) {
+  const draw = () => {
+    host.querySelectorAll("svg").forEach(n => n.remove());
+    const rows = o.rows, W = Math.max(280, host.clientWidth);
+    const lw = Math.min(o.labelWidth || 170, W * .42), rowH = 28, m = { t: o.ref ? 20 : 6, b: 6, r: 64 };
+    const H = m.t + rows.length * rowH + m.b, iw = W - lw - m.r;
+    const vals = rows.map(r => r.value).concat(o.ref ? [o.ref.value] : []);
+    const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+    const X = v => lw + (v - lo) / ((hi - lo) || 1) * iw;
+    const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": o.label || "" });
+    const tip = tipBox(host);
+    svg.append(sv("line", { x1: X(0), x2: X(0), y1: m.t - 4, y2: H - m.b, stroke: css("--axis") }));
+    rows.forEach((r, i) => {
+      const y = m.t + i * rowH + 5, h = rowH - 10, x0 = X(Math.min(0, r.value)), x1 = X(Math.max(0, r.value));
+      const color = css(r.color || o.color || "--s1"), w = Math.max(1, x1 - x0), rr = Math.min(4, w / 2);
+      const d = r.value >= 0
+        ? `M${x0},${y}H${x1 - rr}Q${x1},${y} ${x1},${y + rr}V${y + h - rr}Q${x1},${y + h} ${x1 - rr},${y + h}H${x0}Z`
+        : `M${x1},${y}H${x0 + rr}Q${x0},${y} ${x0},${y + rr}V${y + h - rr}Q${x0},${y + h} ${x0 + rr},${y + h}H${x1}Z`;
+      svg.append(sv("path", { d, fill: color }));
+      const lab = sv("text", { x: lw - 8, y: y + h / 2 + 4, "text-anchor": "end", class: "dl" }); lab.textContent = r.label; svg.append(lab);
+      const vt = sv("text", { x: r.value >= 0 ? x1 + 6 : x0 - 6, y: y + h / 2 + 4, "text-anchor": r.value >= 0 ? "start" : "end" }); vt.textContent = o.fmt(r.value); svg.append(vt);
+      const hit = sv("rect", { x: 0, y: y - 5, width: W, height: rowH, fill: "transparent", tabindex: 0 });
+      const on = (px, py) => { fillTip(tip, r.label, [{ value: o.fmt(r.value), name: o.name || "", color }].concat(r.extra || [])); placeTip(tip, host, px, py); };
+      hit.addEventListener("pointermove", e => { const b = svg.getBoundingClientRect(); on(e.clientX - b.left, e.clientY - b.top); });
+      hit.addEventListener("focus", () => on(x1 * host.clientWidth / W, y));
+      hit.addEventListener("pointerleave", () => tip.hidden = true); hit.addEventListener("blur", () => tip.hidden = true);
+      svg.append(hit);
+    });
+    if (o.ref) {
+      svg.append(sv("line", { x1: X(o.ref.value), x2: X(o.ref.value), y1: m.t - 4, y2: H - m.b, stroke: css("--ink2"), "stroke-dasharray": "3 3" }));
+      const t = sv("text", { x: X(o.ref.value), y: 11, "text-anchor": "middle" }); t.textContent = o.ref.label; svg.append(t);
+    }
+    host.prepend(svg);
+  };
+  register(draw);
+}
+
+/* ---------------------------------------------------------------- scatter */
+function scatter(host, o) {
+  const H = o.height || 360;
+  const draw = () => {
+    host.querySelectorAll("svg").forEach(n => n.remove());
+    const W = Math.max(280, host.clientWidth), m = { l: 48, r: 16, t: 28, b: 40 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const xs = o.points.map(p => p.x), ys = o.points.map(p => p.y);
+    const xt = niceTicks(Math.min(0, ...xs), Math.max(...xs), 5), yt = niceTicks(Math.min(0, ...ys), Math.max(...ys), 5);
+    const X = v => m.l + (v - xt[0]) / (xt[xt.length - 1] - xt[0]) * iw;
+    const Y = v => m.t + ih - (v - yt[0]) / (yt[yt.length - 1] - yt[0]) * ih;
+    const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": o.label || "" });
+    yt.forEach(t => { svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(t), y2: Y(t), stroke: t === 0 ? css("--axis") : css("--grid") }));
+      const tx = sv("text", { x: m.l - 8, y: Y(t) + 4, "text-anchor": "end" }); tx.textContent = o.fmtY(t); svg.append(tx); });
+    xt.forEach(t => { const tx = sv("text", { x: X(t), y: m.t + ih + 16, "text-anchor": "middle" }); tx.textContent = o.fmtX(t); svg.append(tx); });
+    const xl = sv("text", { x: m.l + iw, y: H - 4, "text-anchor": "end" }); xl.textContent = o.xLabel; svg.append(xl);
+    const yl = sv("text", { x: m.l - 40, y: 11 }); yl.textContent = o.yLabel; svg.append(yl);
+    (o.refX != null) && svg.append(sv("line", { x1: X(o.refX), x2: X(o.refX), y1: m.t, y2: m.t + ih, stroke: css("--muted"), "stroke-dasharray": "4 4" }));
+    (o.refY != null) && svg.append(sv("line", { x1: m.l, x2: m.l + iw, y1: Y(o.refY), y2: Y(o.refY), stroke: css("--muted"), "stroke-dasharray": "4 4" }));
+    const tip = tipBox(host);
+    const sorted = [...o.points].sort((a, b) => (a.hl ? 1 : 0) - (b.hl ? 1 : 0));
+    sorted.forEach(p => {
+      const c = css(p.hl ? "--s2" : (p.label ? "--s3" : "--s1"));
+      svg.append(sv("circle", { cx: X(p.x), cy: Y(p.y), r: p.hl || p.label ? 6 : 4, fill: c, "fill-opacity": p.hl || p.label ? 1 : .55, stroke: css("--surface"), "stroke-width": 2 }));
+      if (p.label) { const right = X(p.x) > W - 150; const t = sv("text", { x: X(p.x) + (right ? 0 : 9), y: Y(p.y) + (right ? -11 : 4), class: "dl", "text-anchor": right ? "end" : "start" }); t.textContent = p.label; svg.append(t); }
+      const hit = sv("circle", { cx: X(p.x), cy: Y(p.y), r: 12, fill: "transparent", tabindex: p.label ? 0 : -1 });
+      const on = (px, py) => { fillTip(tip, p.label || (p.hl ? "Failed 2023" : "Bank, $10bn+ assets"), [{ value: o.fmtX(p.x), name: o.xLabel, color: c }, { value: o.fmtY(p.y), name: o.yLabel, color: c }]); placeTip(tip, host, px, py); };
+      hit.addEventListener("pointermove", e => { const b = svg.getBoundingClientRect(); on(e.clientX - b.left, e.clientY - b.top); });
+      hit.addEventListener("focus", () => on(X(p.x) * host.clientWidth / W, Y(p.y)));
+      hit.addEventListener("pointerleave", () => tip.hidden = true); hit.addEventListener("blur", () => tip.hidden = true);
+      svg.append(hit);
+    });
+    host.prepend(svg);
+  };
+  register(draw);
+}
+
+function table(cols, rows, opts = {}) {
+  const t = el("table"), hr = el("tr");
+  cols.forEach(c => hr.append(el("th", { text: c.label })));
+  t.append(el("thead", {}, hr));
+  const tb = el("tbody");
+  rows.forEach(r => {
+    const tr = el("tr"); if (opts.hl && opts.hl(r)) tr.className = "hl";
+    cols.forEach(c => tr.append(el("td", { text: c.fmt ? c.fmt(r[c.key], r) : (r[c.key] ?? "") })));
+    tb.append(tr);
+  });
+  t.append(tb);
+  return el("div", { class: "tbl" }, t);
+}
+const panel = (q, title, body, src) => {
+  const p = el("div", { class: "panel" });
+  if (q) p.append(el("div", { class: "q", text: q }));
+  if (title) p.append(el("h3", { text: title }));
+  [].concat(body).forEach(b => p.append(typeof b === "string" ? el("p", { text: b }) : b));
+  if (src) p.append(el("div", { class: "src", html: src }));
+  return p;
+};
+const answer = t => el("p", { class: "answer", text: t });
+const chartBox = () => el("div", { class: "chart" });
+
+/* ---------------------------------------------------------------- header */
+const q1 = A.q1, q2 = A.q2, q4 = A.q4, q5 = A.q5, q9 = A.q9, q10 = A.q10, q3 = A.q3;
+const BL = M.bank_level, SP = M.split, MR = M.model_results;
+$("#lede").textContent = `Every FDIC-insured bank in the United States, every quarter from ${A.first_quarter} to ${A.latest_quarter}: ${nf(DQ.clean_rows)} regulatory filings from ${nf(DQ.banks_seen)} banks, joined to ${nf(DQ.failures_since_2007)} bank failures. Ten business questions, each answered from the public record.`;
+$("#meta").append(
+  el("span", { html: `Source <b>FDIC BankFind Suite API</b>` }),
+  el("span", { html: `Latest quarter <b>${A.latest_quarter}</b>` }),
+  el("span", { html: `Pulled <b>${DQ.pulled_at || ""}</b>` }),
+  el("span", { html: `Units <b>$ in billions unless noted</b>` }));
+
+/* ---------------------------------------------------------------- tabs */
+const TABS = [["overview", "Overview"], ["industry", "Industry"], ["cards", "Credit cards"], ["big-banks", "Big banks"],
+  ["early-warning", "Early warning"], ["runs-2023", "2023 bank runs"], ["explorer", "Bank explorer"], ["method", "Data and method"]];
+const tl = $("#tablist");
+TABS.forEach(([id, name]) => {
+  const b = el("button", { role: "tab", id: "b-" + id, "aria-controls": "t-" + id, text: name });
+  b.addEventListener("click", () => { location.hash = id; });
+  tl.append(b);
+});
+const built = {};
+function showTab() {
+  const id = (location.hash || "#overview").slice(1);
+  const ok = TABS.some(t => t[0] === id) ? id : "overview";
+  TABS.forEach(([t]) => { $("#t-" + t).hidden = t !== ok; $("#b-" + t).setAttribute("aria-selected", t === ok); });
+  if (!built[ok]) { built[ok] = true; BUILD[ok]($("#t-" + ok)); }
+  renderers.forEach(f => f());
+}
+const go = id => { location.hash = id; window.scrollTo({ top: 0 }); };
+window.addEventListener("hashchange", showTab);
+
+const BUILD = {};
+
+/* ---------------------------------------------------------------- overview */
+BUILD["overview"] = s => {
+  const lr = MR.find(r => r.screen.startsWith("B"));
+  const k = (lbl, val, sub) => el("div", { class: "kpi" }, [el("div", { class: "lbl", text: lbl }), el("div", { class: "val", text: val }), el("div", { class: "sub", text: sub })]);
+  s.append(el("div", { class: "kpis" }, [
+    k("Insured banks today", nf(q1.banks_latest), `Down ${nf(-q1.banks_pct_change, 1)}% from ${nf(q1.banks_first)} in ${A.first_quarter}`),
+    k("Assets held by the 10 largest", pct(q1.top10_share_latest), `Up from ${pct(q1.top10_share_first)} in ${A.first_quarter}`),
+    k("Credit card charge-off rate", pct(q2.rate_latest, 2), `Annualized, ${A.latest_quarter}. 2019 average ${pct(q2.rate_2019_avg, 2)}`),
+    k("Failed banks flagged in advance", pct(BL.flagged_before_failure_pct), `${BL.flagged_before_failure} of ${BL.failed_banks_test} failures since 2012, median ${BL.median_days_warning} days ahead`),
+  ]));
+  const L = (t, tab) => { const a = el("a", { text: t, tabindex: 0 }); a.addEventListener("click", () => go(tab)); a.addEventListener("keydown", e => e.key === "Enter" && go(tab)); return a; };
+  const li = (qn, text, link, tab) => el("li", {}, [el("span", { class: "qn", text: qn }), el("div", {}, [document.createTextNode(text + " "), L(link, tab)])]);
+  const wa = q4.growth_during_cap_pct;
+  const f = el("ol", { class: "findings" }, [
+    li("Q1", `Half of all US banks have disappeared since ${A.first_quarter.slice(0, 4)}, and only ${nf(q1.exits_failed)} of the ${nf(q1.exits_total)} exits were failures. The rest were mostly mergers, while new bank charters fell from ${q1.denovo_2007_2009} in 2007-2009 to ${q1.denovo_2011_2021} across the whole 2011-2021 decade.`, "See the industry view", "industry"),
+    li("Q2", `Credit card charge-offs have climbed from a low of ${pct(q2.low_rate, 2)} in ${q2.low_quarter_since_2015} back to ${pct(q2.rate_last4_avg, 2)} over the last four quarters, slightly above the 2019 level of ${pct(q2.rate_2019_avg, 2)}. Year-over-year changes in 30-89 day delinquency line up best with charge-off changes ${q2.best_lag_quarters} quarters later (correlation ${nf(q2.lag_corr[q2.best_lag_quarters], 2)}).`, "See credit cards", "cards"),
+    li("Q2", `Among the largest card issuers, trailing four-quarter charge-off rates range from ${pct(q2.issuers[q2.issuers.length - 1].nco_rate_t4, 2)} (${q2.issuers[q2.issuers.length - 1].name}) to ${pct(q2.issuers[0].nco_rate_t4, 2)} (${q2.issuers[0].name}).`, "Compare issuers", "cards"),
+    li("Q4", `Wells Fargo's bank assets moved ${signed(wa["Wells Fargo"])} between ${q4.base_quarter} and ${q4.cap_end_quarter}, while JPMorgan Chase grew ${signed(wa["JPMorgan Chase"])}. The Federal Reserve's asset cap is visible in the raw filings.`, "See big banks", "big-banks"),
+    li("Q5", `A year before failing, the median failed bank had ${pct(q5.profile[0].failed_median)} of loans noncurrent (survivors ${pct(q5.profile[0].survivor_median)}) and ${pct(q5.share_failed_negative_roa, 0)} were losing money (survivors ${pct(q5.share_surv_negative_roa, 0)}).`, "See the failure profile", "early-warning"),
+    li("Q6", `A transparent logistic model trained only on 2007-2011 caught ${pct(lr.capture_top2)} of the failures in ${SP.test_period.replace(" to ", "-")} by reviewing the riskiest 2% of banks each quarter. A six-check red-flag rule anyone can run in Excel caught ${pct(MR[0].capture_top2)}.`, "See the backtest", "early-warning"),
+    li("Q7", `The same model ranked Silicon Valley Bank safer than ${nf(100 - M.q7.cases[0].credit_score_pct, 0)}% of $10bn+ banks three months before it failed. Its risk was in deposits and bonds: ${pct(M.q7.cases[0].uninsured_share, 0)} of deposits uninsured and unrealized bond losses of ${pct(M.q7.cases[0].unreal_loss_to_t1, 0)} of Tier 1 capital.`, "See the 2023 runs", "runs-2023"),
+    li("Q9", `Bank failures since 2007 cost the FDIC's insurance fund about ${bn(q9.cost_total_bn, 0)}. Failures in 2023 alone account for ${bn(q9.cost_2023_bn, 1)}, and that figure is a floor.`, "See failure costs", "industry"),
+    li("Q10", `Phoenix-based Western Alliance lost ${nf(-q10.wa_dep_change_pct, 1)}% of its deposits in the March 2023 quarter, then cut its uninsured share from ${pct(q10.wa_unins_2022q4, 0)} to ${pct(q10.wa_unins_2023q4, 0)} within the year.`, "See Western Alliance", "runs-2023"),
+    li("Q8", `Today the screen flags ${M.q8.flagged} banks, together ${pct(M.q8.flagged_share_of_system_assets_pct, 2)} of system assets, median size $${nf(M.q8.flagged_median_assets_m)}m. Names are deliberately kept off this public page.`, "See today's screen", "early-warning"),
+  ]);
+  s.append(el("div", { class: "grid2" }, [
+    panel("Ten questions, ten answers", "What the data says", [f]),
+    panel("Why this project", "How to read this page", [
+      "Every number here is computed by a Python pipeline from the FDIC's public API. Nothing is typed by hand, so the page rebuilds itself when the FDIC publishes a new quarter.",
+      "Each panel names the question it answers, the answer in one line, and the Call Report field codes it used, so any figure can be traced back to the filing.",
+      el("div", { class: "note", text: "Public filings show what a bank reported, not what an examiner sees. The early-warning screen is a way to decide where to look first. It is not a prediction that any named bank will fail." }),
+    ]),
+  ]));
+};
+
+/* ---------------------------------------------------------------- industry */
+BUILD["industry"] = s => {
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "How the industry has changed" }),
+    el("p", { text: `From ${nf(q1.banks_first)} insured banks in ${A.first_quarter} to ${nf(q1.banks_latest)} in ${A.latest_quarter}, while total bank assets grew from $${nf(q1.assets_first_tn, 1)} trillion to $${nf(q1.assets_latest_tn, 1)} trillion.` })]));
+  const c1 = chartBox(), c2 = chartBox(), c3 = chartBox(), c4 = chartBox(), c5 = chartBox();
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q1 · Consolidation", "Number of FDIC-insured banks", [answer(`Down ${nf(-q1.banks_pct_change, 1)}%. ${nf(q1.exits_other)} banks left by merger or charter change and ${nf(q1.exits_failed)} by failure.`), c1], "Count of <code>CERT</code> per <code>REPDTE</code>"),
+    panel("Q1 · Concentration", "Share of all bank assets held by the largest banks", [answer(`The top 4 banks now hold ${pct(q1.top4_share_latest)} of assets, up from ${pct(q1.top4_share_first)}.`), c2], "Charter-level <code>ASSET</code>, ranked each quarter"),
+  ]));
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q1 · Entry and exit", "Bank failures per year", [c3], "FDIC failures table, <code>RESTYPE = FAILURE</code>"),
+    panel("Q1 · Entry and exit", "New bank charters per year", [answer(`${q1.denovo_2007_2009} new banks in 2007-2009, ${q1.denovo_2011_2021} in the eleven years after, ${q1.denovo_2022_latest} since 2022.`), c4], "First quarter a <code>CERT</code> appears in the panel"),
+  ]));
+  s.append(panel("Q9 · Cost", "Estimated loss to the FDIC's Deposit Insurance Fund, by failure year", [
+    answer(`About ${bn(q9.cost_total_bn, 0)} since 2007. Small banks (under $1bn) lost ${pct(q9.loss_rate_small_banks)} of their assets on failure, large banks ${pct(q9.loss_rate_large_banks)}, but 2023 failures cost ${bn(q9.cost_2023_bn, 1)}.`),
+    c5,
+    el("div", { class: "note", text: `${q9.zero_cost_failures} failures carry a cost of $0 in the FDIC file. For some, such as Washington Mutual in 2008, that is correct. Signature Bank (2023) also shows $0, although its resolution was widely reported as a loss, so treat the 2023 total as a lower bound.` }),
+  ], "<code>COST</code> and <code>QBFASSET</code> from the failures table, in $ thousands, converted to $bn"));
+  const yrs = q1.by_year.year;
+  lineChart(c1, { x: q1.series.quarter, series: [{ name: "Insured banks", color: "--s1", values: q1.series.banks }], fmt: v => nf(v), label: "Number of banks by quarter" });
+  lineChart(c2, { x: q1.series.quarter, series: [{ name: "Top 10 banks", color: "--s1", values: q1.series.top10_share }, { name: "Top 4 banks", color: "--s2", values: q1.series.top4_share }], fmt: v => pct(v), tickFmt: v => v + "%", label: "Asset share of top banks" });
+  barChart(c3, { x: yrs, values: q1.by_year.failures, fmt: v => nf(v) + " failures", tickFmt: v => nf(v), name: "Failures", color: "--s8" });
+  barChart(c4, { x: yrs, values: q1.by_year.denovo, fmt: v => nf(v) + " new banks", tickFmt: v => nf(v), name: "New charters", color: "--s3" });
+  barChart(c5, { x: q9.by_year.year, values: q9.by_year.cost_bn, fmt: v => bn(v, 1), tickFmt: v => "$" + v + "bn", name: "Estimated loss", color: "--s7",
+    extra: i => [{ value: nf(q9.by_year.n[i]), name: "failures", color: css("--muted") }, { value: q9.by_year.cost_pct_assets[i] == null ? "n/a" : pct(q9.by_year.cost_pct_assets[i]), name: "of failed banks' assets", color: css("--muted") }] });
+};
+
+/* ---------------------------------------------------------------- cards */
+const ISSUER_COLOR = { "Capital One": "--s1", "JPMorgan Chase": "--s2", "American Express": "--s3", "Citibank": "--s4", "Synchrony": "--s5", "Bank of America": "--s6", "Wells Fargo": "--s7", "U.S. Bank": "--s8" };
+BUILD["cards"] = s => {
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "Credit card credit quality" }),
+    el("p", { text: `$${nf(q2.card_balances_latest_bn)}bn of card balances sit on the books of ${q2.issuers_latest} insured banks in ${A.latest_quarter}, up from $${nf(q2.card_balances_2019q4_bn)}bn at the end of 2019.` })]));
+  const c1 = chartBox(), c2 = chartBox(), c3 = chartBox(), c4 = chartBox();
+  s.append(panel("Q2 · Industry trend", "Card net charge-offs and 30-89 day delinquency, all insured banks", [
+    answer(`Charge-offs peaked at ${pct(q2.peak_rate, 2)} in ${q2.peak_quarter}, bottomed at ${pct(q2.low_rate, 2)} in ${q2.low_quarter_since_2015} when stimulus money paid down balances, and are back to ${pct(q2.rate_latest, 2)}.`), c1],
+    "Charge-offs: Σ<code>NTCRCDQ</code>×4 ÷ Σ<code>LNCRCD</code>. Delinquency: <code>P3CRCDR</code>×<code>ASSET</code> ÷ <code>LNCRCD</code> (the FDIC ratio is over total assets, not card loans)"));
+  const lags = Object.keys(q2.lag_corr);
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q2 · Leading indicator", "Does delinquency warn of charge-offs?", [
+      answer(`Yes, by about ${q2.best_lag_quarters} quarters. A rise in 30-89 day delinquency lines up best with the rise in charge-offs ${q2.best_lag_quarters} quarters later.`), c2,
+      "Correlation of the year-over-year change in delinquency with the year-over-year change in charge-offs k quarters later. Using changes, not levels, stops the shared long-run trend from inflating the number."], "Industry series above, 2007-" + A.latest_quarter.slice(0, 4)),
+    panel("Q2 · Issuers", "Trailing four-quarter charge-off rate, banks with $20bn+ in cards", [c3], "Σ last 4 quarters <code>NTCRCDQ</code> ÷ average <code>LNCRCD</code>. Bank charter only, not the holding company"),
+  ]));
+  const chips = el("div", { class: "chips" });
+  const chosen = new Set(["Capital One", "JPMorgan Chase", "American Express", "Citibank"]);
+  Object.keys(q2.series.issuers).forEach(name => {
+    const b = el("button", { class: "chip", "aria-pressed": chosen.has(name) }, [el("i"), document.createTextNode(name)]);
+    b.style.color = css(ISSUER_COLOR[name] || "--muted");
+    b.querySelector("i").style.background = chosen.has(name) ? "currentColor" : "transparent";
+    b.addEventListener("click", () => {
+      if (chosen.has(name)) { if (chosen.size > 1) chosen.delete(name); } else if (chosen.size < 4) chosen.add(name);
+      chips.querySelectorAll(".chip").forEach(c => { const on = chosen.has(c.textContent); c.setAttribute("aria-pressed", on); c.querySelector("i").style.background = on ? "currentColor" : "transparent"; });
+      drawIss();
+    });
+    chips.append(b);
+  });
+  const issPanel = panel("Q2 · Issuers over time", "Quarterly card charge-off rate by issuer (choose up to 4)", [chips, c4], "<code>NTCRCDQ</code>×4 ÷ <code>LNCRCD</code>, per bank charter");
+  s.append(issPanel);
+  lineChart(c1, { x: q2.series.quarter, series: [{ name: "Net charge-off rate", color: "--s8", values: q2.series.nco_rate }, { name: "30-89 days past due", color: "--s1", values: q2.series.dq30_rate }], fmt: v => pct(v, 2), tickFmt: v => v + "%", label: "Card charge-off and delinquency rates" });
+  barChart(c2, { x: lags.map(k => k + "q"), values: lags.map(k => q2.lag_corr[k]), fmt: v => nf(v, 2), tickFmt: v => nf(v, 1), name: "Correlation", color: "--s1", colorFor: (l, i) => +lags[i] === q2.best_lag_quarters ? "--s2" : "--s1", xFmt: l => l + " later", table: false, height: 200 });
+  hbar(c3, { rows: q2.issuers.map(r => ({ label: r.name, value: r.nco_rate_t4, color: ISSUER_COLOR[r.name], extra: [{ value: bn(r.card_bal_bn, 0), name: "card balances", color: css("--muted") }, { value: pct(r.card_share_of_loans, 0), name: "of the bank's loans are cards", color: css("--muted") }] })),
+    fmt: v => pct(v, 2), ref: { value: q2.rate_last4_avg, label: "All banks " + pct(q2.rate_last4_avg, 2) }, name: "charge-off rate", labelWidth: 140 });
+  // issuer chart redraws on selection; keep one host
+  const tableHost = el("div");
+  issPanel.append(tableHost);
+  function drawIss() {
+    c4.replaceChildren(); const idx = renderers.indexOf(c4._r); if (idx >= 0) renderers.splice(idx, 1);
+    const from = q2.series.quarter.indexOf("2015Q1");
+    const ser = [...chosen].map(n => ({ name: n, color: ISSUER_COLOR[n], values: q2.series.issuers[n].slice(from) }));
+    lineChart(c4, { x: q2.series.quarter.slice(from), series: ser, fmt: v => pct(v, 2), tickFmt: v => v + "%", table: false, label: "Issuer charge-off rates" });
+    c4._r = renderers[renderers.length - 1];
+  }
+  drawIss();
+};
+
+/* ---------------------------------------------------------------- big banks */
+BUILD["big-banks"] = s => {
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "The largest consumer and card banks" }),
+    el("p", { text: `Latest Call Report (${q3.quarter}) for the largest card and consumer banks, against the median of all ${q3.n_banks_100bn_plus} banks with $100bn+ in assets. ${q3.note}` })]));
+  const keys = Object.keys(q3.columns);
+  const sel = el("select", { id: "metric-pick" });
+  keys.filter(k => k !== "assets_bn").forEach(k => sel.append(el("option", { value: k, text: q3.columns[k] })));
+  const c1 = chartBox();
+  const p1 = panel("Q3 · Peer comparison", "Compare one measure across banks", [el("div", { class: "controls" }, el("label", { class: "ctl", for: "metric-pick" }, [document.createTextNode("Measure"), sel])), c1],
+    "Fields <code>ROA</code> <code>NIMY</code> <code>EEFFR</code> <code>NTLNLSR</code> <code>NCLNLSR</code> <code>RBC1AAJ</code> <code>DEPUNINS</code>/<code>DEP</code> and (<code>SCHA</code>−<code>SCHF</code>)+(<code>SCAA</code>−<code>SCAF</code>) ÷ <code>RBCT1J</code>");
+  s.append(p1);
+  const drawMetric = () => {
+    c1.replaceChildren(); const idx = renderers.indexOf(c1._r); if (idx >= 0) renderers.splice(idx, 1);
+    const k = sel.value, rows = q3.rows.filter(r => r[k] != null).map(r => ({ label: r.name, value: r[k], color: r.name.startsWith("Western") ? "--s3" : "--s1" })).sort((a, b) => b.value - a.value);
+    hbar(c1, { rows, fmt: v => pct(v, 2), ref: q3.median_100bn_plus[k] != null ? { value: q3.median_100bn_plus[k], label: "$100bn+ median " + pct(q3.median_100bn_plus[k], 2) } : null, name: q3.columns[k], labelWidth: 190 });
+    c1._r = renderers[renderers.length - 1];
+  };
+  sel.addEventListener("change", drawMetric); drawMetric();
+  const cols = [{ key: "name", label: "Bank" }].concat(keys.map(k => ({ key: k, label: q3.columns[k].replace(" %", "").replace(" ($bn)", " $bn"), fmt: v => k === "assets_bn" ? nf(v, 0) : nf(v, 2) })));
+  s.append(panel(null, "Full scorecard, " + q3.quarter, [table(cols, q3.rows.concat([{ name: "Median, $100bn+ banks", ...q3.median_100bn_plus }]), { hl: r => r.name.startsWith("Median") })],
+    "Western Alliance is included as the largest bank headquartered in Arizona. Discover Bank merged into Capital One in 2025."));
+  const c2 = chartBox();
+  s.append(panel("Q4 · Regulation in the data", "Did the Wells Fargo asset cap show up? Total bank assets, indexed to " + q4.base_quarter + " = 100", [
+    answer(`Yes. From ${q4.base_quarter} to ${q4.cap_end_quarter} Wells Fargo moved ${signed(q4.growth_during_cap_pct["Wells Fargo"])} while JPMorgan Chase grew ${signed(q4.growth_during_cap_pct["JPMorgan Chase"])}, Bank of America ${signed(q4.growth_during_cap_pct["Bank of America"])} and Citibank ${signed(q4.growth_during_cap_pct["Citibank"])}. Since the cap was lifted in June 2025 Wells has grown ${signed(q4.growth_since_lift_pct["Wells Fargo"])}.`), c2], q4.caveat));
+  lineChart(c2, { x: q4.series.quarter, series: ["Wells Fargo", "JPMorgan Chase", "Bank of America", "Citibank"].map((n, i) => ({ name: n, color: ["--s8", "--s1", "--s3", "--s4"][i], values: q4.series[n] })),
+    fmt: v => nf(v, 1), zero: false, bands: [{ from: "2018Q1", to: q4.cap_end_quarter, label: "Asset cap in force" }], refLines: [{ y: 100, label: q4.base_quarter }], label: "Indexed bank assets" });
+};
+
+/* ---------------------------------------------------------------- early warning */
+BUILD["early-warning"] = s => {
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "Can public data warn a year before a bank fails?" }),
+    el("p", { text: `Each row is one bank in one quarter. The target is whether the bank failed within the next 365 days. Models learn only from ${SP.train_period} (${nf(SP.train_positive_rows)} pre-failure rows) and are scored on ${SP.test_period} (${nf(SP.test_rows)} rows, ${SP.test_failed_banks} banks that failed), a calmer era they never saw. Base rate in the test era: ${nf(SP.base_rate_test_pct, 3)}% of bank-quarters.` })]));
+  const c1 = chartBox(), c2 = chartBox();
+  const mcols = [{ key: "screen", label: "Screen" }, { key: "auc", label: "AUC", fmt: v => nf(v, 3) },
+    { key: "capture_top1", label: "Caught, top 1%", fmt: v => pct(v) }, { key: "capture_top2", label: "Caught, top 2%", fmt: v => pct(v) },
+    { key: "capture_top5", label: "Caught, top 5%", fmt: v => pct(v) }, { key: "precision_top2", label: "Hit rate, top 2%", fmt: v => pct(v) }];
+  const nc = M.no_capital_variant;
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q6 · Backtest", "Three screens, simplest first", [
+      answer(`The logistic model catches ${pct(MR[1].capture_top2)} of failures from the riskiest 2% of bank-quarters. The six-check rule gets ${pct(MR[0].capture_top2)}, so most of the value is in the rule.`),
+      table(mcols, MR),
+      `Hit rate is the share of flagged bank-quarters that failed within a year: about 1 in ${nf(100 / MR[1].precision_top2, 0)}. Failures are rare (${nf(SP.base_rate_test_pct, 3)}%), so this is ${nf(MR[1].precision_top2 / SP.base_rate_test_pct, 0)} times better than picking at random.`,
+      el("div", { class: "note", text: `Robustness check: regulators close banks largely because capital runs out, so low capital is partly the outcome itself. Without the two capital ratios the model still catches ${pct(nc.capture_top2)} (AUC ${nf(nc.auc, 3)}).` })],
+      "scikit-learn LogisticRegression and HistGradientBoostingClassifier, time-based split, no shuffling"),
+    panel("Q6 · Bank-level view", "What an examiner would have seen", [
+      answer(`${BL.flagged_before_failure} of ${BL.failed_banks_test} banks that failed after 2012 were flagged at least once in their final year, with a median ${BL.median_days_warning} days of warning.`),
+      `The cost: ${pct(BL.healthy_banks_ever_flagged_pct)} of the ${nf(BL.healthy_banks_test)} banks that never failed were also flagged at some point over 13 years. Flagged means in that quarter's top 2% by model score, about ${BL.flags_per_quarter} banks a quarter.`,
+      el("h3", { text: "Failure rate by number of red flags" }), c1], "Six checks: noncurrent loans > 3%, ROA < 0, Tier 1 leverage < 8%, brokered deposits > 10%, construction > 100% of capital, non-owner CRE > 300% of capital"),
+  ]));
+  const fl = M.fail_rate_by_flag_count;
+  barChart(c1, { x: fl.map(r => r.flags === 4 ? "4+" : String(r.flags)), values: fl.map(r => r.fail_rate_pct), fmt: v => pct(v, 2), tickFmt: v => v + "%", name: "failed within a year", color: "--s8",
+    extra: i => [{ value: nf(fl[i].bank_quarters), name: "bank-quarters", color: css("--muted") }], xFmt: l => l + " flags", height: 200, table: false });
+  const pcols = [{ key: "label", label: "Measure, one year before" }, { key: "failed_median", label: "Failed banks (median)", fmt: v => nf(v, 2) }, { key: "survivor_median", label: "Other banks (median)", fmt: v => nf(v, 2) }];
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q5 · Failure profile", `What ${q5.n_failed} failed banks looked like a year out`, [
+      answer(`Thin capital, bad loans and heavy construction lending. ${pct(q5.share_failed_constr_over_100, 0)} of failed banks had construction loans above 100% of capital, against ${pct(q5.share_surv_constr_over_100, 0)} of other banks.`),
+      table(pcols, q5.profile)], "Snapshot 270-365 days before failure vs every bank not failing within 3 years, same quarters"),
+    panel("Q6 · What drives the model", "Logistic regression weights (standardized)", [c2,
+      "Positive weights raise the risk score, negative lower it. Because inputs are standardized, weights compare across measures. Capital ratios dominate, which is why the robustness check above matters."], "14 capped ratios, median-imputed with missing flags"),
+  ]));
+  hbar(c2, { rows: M.logit_weights.map(w => ({ label: w.feature, value: w.weight, color: w.weight > 0 ? "--s8" : "--s1" })), fmt: v => nf(v, 2), labelWidth: 220, name: "weight" });
+  const q8 = M.q8, c3 = chartBox(), c4 = chartBox();
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q8 · Today", `What the screen says about ${q8.quarter}`, [
+      answer(`${q8.flagged} of ${nf(q8.banks_scored)} banks are in the top 2%. Together they hold ${bn(q8.flagged_assets_bn, 0)}, ${pct(q8.flagged_share_of_system_assets_pct, 2)} of system assets. Median size $${nf(q8.flagged_median_assets_m)}m; the largest is ${bn(q8.flagged_largest_bn, 1)}.`),
+      el("h3", { text: "Which red flags the flagged banks carry" }), c3,
+      el("div", { class: "note", text: "Bank names are kept out of the public page on purpose. A screen is a reason to look closer, not evidence of trouble, and a public list naming small banks could do real harm. The named list is written to a local, git-ignored file for private use." })]),
+    panel("Q8 · Today", "Where the flagged banks are headquartered (top states)", [c4]),
+  ]));
+  hbar(c3, { rows: Object.entries(q8.flagged_flag_counts).map(([k, v]) => ({ label: k, value: v, color: "--s7" })), fmt: v => nf(v) + " banks", labelWidth: 220 });
+  hbar(c4, { rows: Object.entries(q8.flagged_by_state).map(([k, v]) => ({ label: k, value: v, color: "--s1" })), fmt: v => nf(v) + " banks", labelWidth: 60 });
+  const lcols = [{ key: "flag", label: "Red flag" }, { key: "share_of_bank_quarters", label: "% of bank-quarters", fmt: v => pct(v) }, { key: "fail_rate_if_on", label: "Fail rate if on", fmt: v => pct(v, 2) }, { key: "fail_rate_if_off", label: "Fail rate if off", fmt: v => pct(v, 3) }];
+  s.append(panel("Q6 · Each red flag on its own", "Not every textbook warning sign works", [
+    answer("Brokered deposits above 10% carried no extra risk in the test era. It was a classic 2009 warning sign, and I kept it in the rule so the result is visible rather than hidden."),
+    table(lcols, M.flag_lift)], "Test era " + SP.test_period));
+};
+
+/* ---------------------------------------------------------------- 2023 */
+BUILD["runs-2023"] = s => {
+  const q7 = M.q7, uo = M.q7_uninsured_only;
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "Why the 2023 failures slipped through" }),
+    el("p", { text: `Silicon Valley Bank failed on 10 March 2023, Signature Bank two days later and First Republic on 1 May. All three filed clean-looking Call Reports for 2022 Q4. This section scores those filings with the same model and compares them with the other ${q7.n_banks_10bn - 3} banks over $10bn.` })]));
+  const c1 = chartBox();
+  const pts = q7.scatter.map(p => ({ x: p.x, y: p.y, hl: p.failed, label: p.failed ? p.label : (p.label || "") }));
+  s.append(panel("Q7 · 2022 Q4 filings, all banks over $10bn", "Uninsured deposits vs unrealized bond losses", [
+    answer(`The failed banks were outliers on funding and bond losses, not on credit. Silicon Valley Bank's unrealized losses (${pct(q7.cases[0].unreal_loss_to_t1, 0)} of Tier 1) exceeded its capital.`), c1,
+    `Dashed lines: medians of $10bn+ banks (${pct(q7.median_uninsured_10bn)} uninsured, ${pct(q7.median_unreal_10bn)} losses to Tier 1). Orange: failed in 2023. Green: Western Alliance.`],
+    "x: <code>DEPUNINS</code> ÷ <code>DEP</code>. y: (<code>SCHA</code>−<code>SCHF</code>)+(<code>SCAA</code>−<code>SCAF</code>) ÷ <code>RBCT1J</code>"));
+  scatter(c1, { points: pts, xLabel: "Uninsured deposits %", yLabel: "Unrealized losses % of Tier 1", fmtX: v => nf(v, 0) + "%", fmtY: v => nf(v, 0) + "%", refX: q7.median_uninsured_10bn, refY: q7.median_unreal_10bn });
+  const ccols = [{ key: "name", label: "Bank" }, { key: "assets_bn", label: "Assets $bn", fmt: v => nf(v, 0) }, { key: "red_flags", label: "Red flags" },
+    { key: "credit_score_pct", label: "Credit risk rank", fmt: v => ordn(v) + " pct" }, { key: "ROA", label: "ROA %", fmt: v => nf(v, 2) }, { key: "noncurrent", label: "Noncurrent %", fmt: v => nf(v, 2) },
+    { key: "uninsured_share", label: "Uninsured %", fmt: v => nf(v, 1) }, { key: "uninsured_pct", label: "Uninsured rank", fmt: v => ordn(v) + " pct" },
+    { key: "unreal_loss_to_t1", label: "Losses / Tier 1 %", fmt: v => nf(v, 1) }];
+  s.append(panel("Q7 · Case table", "How each bank scored in 2022 Q4 (ranks among $10bn+ banks, 100th = riskiest)", [
+    answer(`The credit model put Silicon Valley Bank at the ${ordn(q7.cases[0].credit_score_pct)} percentile of risk. Credit-based screens look at loans, and its loans were fine.`),
+    table(ccols, q7.cases, { hl: r => !r.name.startsWith("Western") })]));
+  const c2 = chartBox(), c3 = chartBox();
+  s.append(el("div", { class: "grid2" }, [
+    panel("Q7 · A funding screen, built with hindsight", "What a deposit-side check would have shown", [
+      answer(`Ranking $10bn+ banks by uninsured deposit share alone, ${uo.n_failed} of the top ${uo.n_banks} (above ${pct(uo.threshold_pct, 0)}) failed within five months.`),
+      `The other ${uo.survivors.length} survived: ${uo.survivors.join(", ")}. Several are custody banks or US arms of foreign banks, whose large depositors are institutions that do not run the way tech start-ups did.`,
+      el("div", { class: "note", text: `This screen was designed after the fact, so it proves nothing about foresight. Requiring both measures in the top quartile catches only Silicon Valley Bank (${q7.liq_flagged_failed} of ${q7.liq_flagged_count} flagged). Today ${M.q8.liq_flag_10bn_now} of ${M.q8.n_banks_10bn_now} banks over $10bn meet the same absolute cut-offs (${pct(M.q8.liq_cut_uninsured, 0)} uninsured and ${pct(M.q8.liq_cut_unreal, 0)} losses to Tier 1); the median loss ratio has fallen from ${pct(q7.median_unreal_10bn)} to ${pct(M.q8.median_unreal_10bn_now)}.` })]),
+    panel("Q10 · Phoenix", "Western Alliance through the run", [
+      answer(`Deposits fell from ${bn(q10.wa_dep_2022q4_bn, 1)} to ${bn(q10.wa_dep_2023q1_bn, 1)} (${signed(q10.wa_dep_change_pct)}) in the March 2023 quarter, then recovered to ${bn(q10.wa_dep_latest_bn, 1)} by ${A.latest_quarter}.`),
+      el("h4", { text: "Total deposits, $bn", class: "q" }), c2, el("h4", { text: "Share of deposits uninsured", class: "q" }), c3,
+      `Arizona had ${q10.az_banks_first} banks headquartered in-state in ${A.first_quarter} and ${q10.az_banks_latest} today. ${q10.az_failures_since_2007} Arizona banks have failed since 2007.`], "<code>DEP</code>, <code>DEPUNINS</code>, CERT 57512"),
+  ]));
+  const wq = q10.wa_series.quarter;
+  lineChart(c2, { x: wq, series: [{ name: "Deposits", color: "--s3", values: q10.wa_series.deposits_bn }], fmt: v => bn(v, 1), tickFmt: v => "$" + v, height: 180, zero: false, table: false });
+  lineChart(c3, { x: wq, series: [{ name: "Uninsured share", color: "--s3", values: q10.wa_series.uninsured_share }], fmt: v => pct(v), tickFmt: v => v + "%", height: 180, table: false });
+};
+
+/* ---------------------------------------------------------------- explorer */
+BUILD["explorer"] = s => {
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "Bank explorer" }),
+    el("p", { text: `Reported figures for the ${nf(EX.banks.length)} banks that were ever over $10bn, plus every Arizona bank. Pick a bank and an optional comparison.` })]));
+  const mk = (id, lbl) => {
+    const sel = el("select", { id });
+    if (id === "cmp") sel.append(el("option", { value: "", text: "No comparison" }));
+    EX.banks.forEach(b => sel.append(el("option", { value: b.c, text: `${b.n} (${b.st}${b.failed ? ", failed" : ""}${b.last !== A.latest_quarter ? ", last filed " + b.last : ""})` })));
+    return [sel, el("label", { class: "ctl", for: id }, [document.createTextNode(lbl), sel])];
+  };
+  const [s1, l1] = mk("bank", "Bank"), [s2, l2] = mk("cmp", "Compare with");
+  s1.value = "628"; s2.value = "3511";
+  const info = el("p");
+  const grid = el("div", { class: "small-multiples" });
+  const MET = [["assets_bn", "Total assets, $bn", v => bn(v, 1)], ["ROA", "Return on assets, % (YTD annualized)", v => pct(v, 2)], ["NCLNLSR", "Noncurrent loans, % of loans", v => pct(v, 2)],
+    ["NTLNLSR", "Net charge-off rate, %", v => pct(v, 2)], ["RBC1AAJ", "Tier 1 leverage ratio, %", v => pct(v, 2)], ["uninsured_share", "Uninsured deposits, %", v => pct(v, 1)],
+    ["unreal_loss_to_t1", "Unrealized securities losses, % of Tier 1", v => pct(v, 1)], ["dep_growth_yoy", "Deposit growth, % YoY", v => signed(v, 1)]];
+  const hosts = MET.map(([k, t]) => { const h = chartBox(); grid.append(el("div", { class: "sm" }, [el("h4", { text: t }), h])); return h; });
+  s.append(panel(null, null, [el("div", { class: "controls" }, [l1, l2]), info, grid], "Fields: <code>ASSET</code> <code>ROA</code> <code>NCLNLSR</code> <code>NTLNLSR</code> <code>RBC1AAJ</code> <code>DEPUNINS</code> <code>SCHA</code> <code>SCHF</code> <code>SCAA</code> <code>SCAF</code> <code>RBCT1J</code> <code>DEP</code>. Securities detail starts in 2012 for former savings institutions."));
+  let mine = [];
+  const draw = () => {
+    mine.forEach(f => { const i = renderers.indexOf(f); if (i >= 0) renderers.splice(i, 1); }); mine = [];
+    const b = EX.banks.find(x => String(x.c) === s1.value), c = EX.banks.find(x => String(x.c) === s2.value);
+    info.textContent = `${b.n}, ${b.city}, ${b.st}. FDIC certificate ${b.c}. ${b.failed ? "This bank failed. " : ""}Last filing ${b.last}, ${bn(b.a, 1)} in assets.`;
+    MET.forEach(([k, t, f], i) => {
+      hosts[i].replaceChildren();
+      const ser = [{ name: b.n, color: "--s1", values: EX.series[b.c][k] }];
+      if (c && c.c !== b.c) ser.push({ name: c.n, color: "--s2", values: EX.series[c.c][k] });
+      lineChart(hosts[i], { x: EX.quarters, series: ser, fmt: f, tickFmt: v => nf(v, Math.abs(v) < 10 && v % 1 ? 1 : 0), height: 170, table: false, noDirect: true, zero: k === "assets_bn" });
+      mine.push(renderers[renderers.length - 1]);
+    });
+  };
+  s1.addEventListener("change", draw); s2.addEventListener("change", draw); draw();
+};
+
+/* ---------------------------------------------------------------- method */
+BUILD["method"] = s => {
+  s.append(el("div", { class: "intro" }, [el("h2", { text: "Data and method" }), el("p", { text: "What was pulled, what was changed, and what the data cannot tell you." })]));
+  const rows = [
+    ["Raw bank-quarter rows pulled", nf(DQ.raw_rows)], ["Quarters", `${DQ.quarters} (${DQ.first_quarter} to ${DQ.last_quarter})`],
+    ["Duplicate bank-quarters removed", nf(DQ.duplicate_bank_quarters_removed)],
+    ["US branches of foreign banks dropped (no capital of their own)", nf(DQ.rows_dropped_foreign_bank_branches_no_capital)],
+    ["Rows with pre-2012 savings-bank form gaps (marked unknown, not zero)", nf(DQ.rows_with_pre2012_thrift_form_gaps)],
+    ["Clean bank-quarter rows", nf(DQ.clean_rows)], ["Distinct banks", nf(DQ.banks_seen)],
+    ["Failure records (all years)", nf(DQ.failures_raw)], ["Open-bank assistance deals excluded", nf(DQ.assistance_transactions_excluded)],
+    ["Failures since 2007", nf(DQ.failures_since_2007)], ["Failures matched to a Call Report", nf(DQ.failed_banks_matched_to_call_reports)],
+  ];
+  s.append(el("div", { class: "grid2" }, [
+    panel(null, "Pipeline", [el("ul", { class: "plain" }, [
+      "01_fetch_fdic.py pulls 78 quarters of Call Report fields and the full failures table from api.fdic.gov (public, no key).",
+      "02_clean.py builds one bank-quarter panel, logs every cleaning rule with a row count, and derives 20 ratios.",
+      "03_analysis.py answers questions 1-5, 9 and 10.",
+      "04_early_warning.py trains and backtests the screens (6, 7, 8).",
+      "05_build_dashboard.py writes this page from the JSON results.",
+      "06_claude_memo.py drafts a quarterly memo from aggregate numbers only. Row-level data never leaves the machine.",
+    ].map(t => el("li", { text: t })))]),
+    panel(null, "Data quality log", [table([{ key: 0, label: "Step" }, { key: 1, label: "Count" }], rows)]),
+  ]));
+  s.append(panel(null, "Limits", [el("ul", { class: "plain" }, [
+    "Call Reports are filed per bank charter. JPMorgan Chase Bank, N.A. is not JPMorgan Chase & Co.; holding-company figures differ.",
+    "Year-to-date ratios (ROA, NIM, charge-off rate) are annualized by the FDIC; the Q1 value covers one quarter, the Q4 value the full year.",
+    "Public filings miss what examiners see: management quality, CAMELS ratings, enforcement letters, intra-quarter deposit flight.",
+    "Failure is rare after 2012 (" + SP.test_failed_banks + " banks in the test era), so model hit rates carry real uncertainty.",
+    "The 2023 funding screen was built after the outcome was known. It illustrates a blind spot; it is not evidence of foresight.",
+    "FDIC loss estimates for recent failures are still provisional, and some failures carry $0.",
+  ].map(t => el("li", { text: t })))]));
+};
+
+$("#foot").textContent = `Built from FDIC BankFind Suite public data. Figures regenerate from the pipeline; none are typed by hand. Not investment advice and not a statement about the safety of any bank.`;
+showTab();
+</script>

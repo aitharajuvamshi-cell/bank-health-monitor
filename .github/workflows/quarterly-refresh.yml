@@ -1,0 +1,32 @@
+# Rebuild the dashboard when the FDIC publishes a new quarter of Call Report data.
+# FDIC releases each quarter roughly 8-10 weeks after quarter end, so this runs
+# on the 1st of March, June, September and December, and on demand.
+name: Quarterly refresh
+
+on:
+  schedule:
+    - cron: "0 14 1 3,6,9,12 *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Pull FDIC data and rebuild everything
+        run: python run_all.py
+      - name: Commit the refreshed dashboard and findings
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ output/*.json output/memo_prompt.md data/synthetic/
+          git diff --cached --quiet || git commit -m "Quarterly refresh: new FDIC data"
+          git push
